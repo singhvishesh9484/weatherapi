@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        #parent{
+            display:flex;
+            /* border:1px solid red; */
+            width:80%;
+            margin:auto;
+            justify-content: space-between;
+            margin-top:50px;
+            
+        }
+
+       #container{
+        box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+           width:28%;
+           height:400px;
+           box-sizing:border-box;
+           margin-top: 40px;
+           background-color: teal;
+           color:white;
+
+       }
+       #container,p{
+           padding-left:20px;
+           font-size: 18px;
+           padding-top: 7px;
+       }
+       #top{
+           margin:auto;
+           width:30%;
+           margin-top:40px;
+       }
+
+    </style>
+</head>
+<body>
+     <div id="top">
+       <button onclick="getWeather()" >Get weather on your location</button>
+       <input type="text" id="city"/>
+       <button onclick="getData()" id="button">Submit</button>
+     </div>
+
+    <div id="parent">
+
+      <div id="container"></div>
+
+      <div class="mapouter">
+        <div class="gmap_canvas">
+            <iframe width="600" height="500" id="gmap_canvas" src="https://maps.google.com/maps?q=2880%20Broadway,%20New%20York&t=&z=13&ie=UTF8&iwloc=&output=embed" frameborder="0" scrolling="no" marginheight="0" marginwidth="0">
+            </iframe>
+        </div>
+      </div>    
+    </div>
+    
+
+</body>
+</html>
+<script>
+
+    //https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API key}
+
+function getData(){
+
+        let city=document.getElementById("city").value;
+
+        const url=`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=d8772d74440f997765dcce6a787fb302&units=metric`;
+
+    
+    fetch(url)
+    .then(function(res){
+        return res.json();
+        
+    })
+    .then(function(res){
+        append(res);
+        console.log(res);
+
+    })
+    .catch(function(err){
+        console.log(err);
+    });
+     
+}
+
+function getDataLocation(lat,lon){
+    // alert("goole wants to know your location");
+
+    const url=`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=d8772d74440f997765dcce6a787fb302&units=metric`;
+
+
+fetch(url)
+.then(function(res){
+    return res.json();
+    
+})
+.then(function(res){
+    append(res);
+    console.log(res);
+
+})
+.catch(function(err){
+    console.log(err);
+});
+ 
+}
+
+function append(data){
+    let container=document.getElementById("container");
+    let map=document.getElementById("gmap_canvas");
+    container.innerHTML=null;
+
+    let city=document.createElement("p");
+    city.innerText=`City: ${data.name}`;
+
+    let min=document.createElement("p");
+    min.innerText=`Min_temp: ${data.main.temp_min}`+`°C`;
+    
+    let max=document.createElement("p");
+    max.innerText=`Max_temp: ${data.main.temp_max}`+`°C`;
+
+    let current=document.createElement("p");
+    current.innerText=`Current_tem: ${data.main.temp}`+`°C`;
+
+    let humidity=document.createElement("p");
+    humidity.innerText=`Humidity: ${data.main.humidity}`;
+
+    let wind=document.createElement("p");
+    wind.innerText=`Wind: ${data.wind.speed}`;
+
+    let clouds=document.createElement("p");
+    clouds.innerText=`Clouds: ${data.clouds.all}`;
+
+    let sunrise=document.createElement("p");
+    sunrise.innerText=`Sunrise: ${data.sys.sunrise}`;
+
+    let sunset=document.createElement("p");
+    sunset.innerText=`Sunset: ${data.sys.sunset}`;
+
+
+    container.append(city,min,max,current,humidity,wind,clouds,sunrise,sunset);
+      map.src=`https://maps.google.com/maps?q=${data.name}&t=&z=13&ie=UTF8&iwloc=&output=embed`
+      
+
+}
+
+function getWeather(){
+
+navigator.geolocation.getCurrentPosition(success);
+
+function success(position) {
+    let crd = position.coords;
+
+    console.log('Your current position is:');
+    console.log(`Latitude : ${crd.latitude}`);
+    console.log(`Longitude: ${crd.longitude}`);
+    console.log(`More or less ${crd.accuracy} meters.`);
+
+    getDataLocation(crd.latitude, crd.longitude);
+}
+
+}
+
+</script>
